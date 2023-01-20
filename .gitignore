@@ -2,6 +2,8 @@
 .vs/
 Release/
 SteamAccountManager/Release
+SteamAccountManager/Debug
+SteamAccountManager/x64/Debug
 
 # Prerequisites
 *.d
