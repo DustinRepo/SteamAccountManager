@@ -1,3 +1,8 @@
+# Custom
+.vs/
+Release/
+SteamAccountManager/Release
+
 # Prerequisites
 *.d
 
@@ -30,3 +35,4 @@
 *.exe
 *.out
 *.app
+SteamAccountManager/accounts.json
