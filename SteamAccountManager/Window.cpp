@@ -149,7 +149,7 @@ void center_text(const char* text) {
 }
 
 void Window::render_main() {
-	static int current_account = -1;
+	static int current_account = 0;
 	//Make sure we have the steam path
 	if (strlen(steam_path.c_str()) == 0) {
 		ImGui::Text("Steam exe not found. Please launch Steam atleast once.");
@@ -169,10 +169,13 @@ void Window::render_main() {
 		current_account = -1;
 	//Change column and create buttons for managing accounts
 	ImGui::NextColumn();
-	if (ImGui::Button("Export List")) {
-		std::string file_path = Util::open_file_dialog();
-		if (strlen(file_path.c_str()) > 0) {
-			c_steam_account_manager.export_accounts(file_path);
+	//Only show export button if we actually have accounts
+	if (c_steam_account_manager.steam_accounts.size() > 0) {
+		if (ImGui::Button("Export List")) {
+			std::string file_path = Util::open_file_dialog();
+			if (strlen(file_path.c_str()) > 0) {
+				c_steam_account_manager.export_accounts(file_path);
+			}
 		}
 	}
 	if (ImGui::Button("Import List")) {
@@ -185,6 +188,7 @@ void Window::render_main() {
 	if (ImGui::Button("Add Account")) {
 		add_account_page = true;
 	}
+	//Only show remove account button if an account is selected
 	if (current_account != -1) {
 		if (ImGui::Button("Remove Account")) {
 			int result = MessageBox(hwnd, "Are you sure you want to delete this account?", "Are you sure?", MB_YESNO | MB_ICONQUESTION);
@@ -197,6 +201,8 @@ void Window::render_main() {
 	}
 	//Set columns back to 1 to reset then make the large login button
 	ImGui::Columns(1);
+	//Only render login button if an account is selected
+	if (current_account != -1)
 	if (ImGui::Button("Login", { window_width - 16, 30 })) {
 		CSteamAccount c_steam_account = c_steam_account_manager.steam_accounts.at(current_account);
 		//Kill steam if open
@@ -230,7 +236,7 @@ void Window::render_add_account() {
 	ImGui::InputText("##Password", password, IM_ARRAYSIZE(password));
 	ImGui::PopItemWidth();
 
-	if (ImGui::Button("Add Account", { window_width - 16 * 2, 30 })) {
+	if (ImGui::Button("Add Account", { window_width - 16, 30 })) {
 		//XOR password, Add account to list, save, then clear the username and password field
 		CSteamAccount c_steam_account(username, Util::xor_string(password, XOR_KEY));
 		c_steam_account_manager.add_account(c_steam_account);
