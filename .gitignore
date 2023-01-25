@@ -1,6 +1,7 @@
 # Custom
 .vs/
 Release/
+Debug/
 SteamAccountManager/Release
 SteamAccountManager/Debug
 SteamAccountManager/x64/Debug
