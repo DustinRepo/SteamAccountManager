@@ -148,6 +148,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="util\SteamAccount.cpp" />
     <ClCompile Include="util\SteamUtil.cpp" />
+    <ClCompile Include="util\Util.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +163,7 @@
     <ClInclude Include="resource1.h" />
     <ClInclude Include="util\SteamAccount.h" />
     <ClInclude Include="util\SteamUtil.h" />
+    <ClInclude Include="util\Util.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>

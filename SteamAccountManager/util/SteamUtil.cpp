@@ -5,6 +5,7 @@
 #include <cstdio>//console
 #include <filesystem>//path
 #include "SteamAccount.h"
+#include "Util.h"
 
 std::string SteamUtil::get_steam_exe_path(int process_id) {
 	//Open a handle to the steam process and use GetModuleFileNameEx using NULL as the
@@ -60,7 +61,8 @@ bool SteamUtil::start_steam(const char* steam_path, CSteamAccount c_steam_accoun
 	char command_line[512]{};
 	//command line contains the process name since it will use args[0] if the exe path (steam_path)
 	//is null, but it will still expect something there even if you properly pass the path
-	sprintf_s(command_line, "steam.exe -login %s %s", c_steam_account.username.c_str(), c_steam_account.password.c_str());
+	//Apply XOR to password since we store account info XORed
+	sprintf_s(command_line, "steam.exe -login %s %s", c_steam_account.username.c_str(), Util::xor_string(c_steam_account.password, XOR_KEY).c_str());
 	bool result = CreateProcess(steam_path, command_line, NULL, NULL, FALSE, 0, NULL, NULL, &startup_info, &process_info);
 	if (result) {
 		CloseHandle(process_info.hThread);

@@ -10,6 +10,7 @@
 
 #include "util/SteamAccount.h"
 #include "util/SteamUtil.h"
+#include "util/Util.h"
 #include "resource1.h"
 
 #include <dwmapi.h>
@@ -148,7 +149,7 @@ void center_text(const char* text) {
 }
 
 void Window::render_main() {
-	static int current_account = 0;
+	static int current_account = -1;
 	//Make sure we have the steam path
 	if (strlen(steam_path.c_str()) == 0) {
 		ImGui::Text("Steam exe not found. Please launch Steam atleast once.");
@@ -164,15 +165,32 @@ void Window::render_main() {
 		*out_text = c_steam_account_manager.steam_accounts.at(idx).username.c_str();
 		return true;
 	}, nullptr, c_steam_account_manager.steam_accounts.size(), 6);
+	if (current_account >= c_steam_account_manager.steam_accounts.size())
+		current_account = -1;
 	//Change column and create buttons for managing accounts
 	ImGui::NextColumn();
+	if (ImGui::Button("Export List")) {
+		std::string file_path = Util::open_file_dialog();
+		if (strlen(file_path.c_str()) > 0) {
+			c_steam_account_manager.export_accounts(file_path);
+		}
+	}
+	if (ImGui::Button("Import List")) {
+		std::string file_path = Util::open_file_dialog();
+		if (strlen(file_path.c_str()) > 0) {
+			c_steam_account_manager.import_accounts(file_path);
+			c_steam_account_manager.save_accounts();
+		}
+	}
 	if (ImGui::Button("Add Account")) {
 		add_account_page = true;
 	}
-	if (ImGui::Button("Remove Account")) {
-		c_steam_account_manager.delete_account(current_account);
-		c_steam_account_manager.save_accounts();
-		current_account = 0;
+	if (current_account != -1) {
+		if (ImGui::Button("Remove Account")) {
+			c_steam_account_manager.delete_account(current_account);
+			c_steam_account_manager.save_accounts();
+			current_account = 0;
+		}
 	}
 	//Set columns back to 1 to reset then make the large login button
 	ImGui::Columns(1);
@@ -210,8 +228,8 @@ void Window::render_add_account() {
 	ImGui::PopItemWidth();
 
 	if (ImGui::Button("Add Account", { window_width - 16 * 2, 30 })) {
-		//Add account to list, save, then clear the username and password field
-		CSteamAccount c_steam_account(username, password);
+		//XOR password, Add account to list, save, then clear the username and password field
+		CSteamAccount c_steam_account(username, Util::xor_string(password, XOR_KEY));
 		c_steam_account_manager.add_account(c_steam_account);
 		c_steam_account_manager.save_accounts();
 		add_account_page = false;
@@ -220,7 +238,7 @@ void Window::render_add_account() {
 	}
 }
 
-bool Window::create_device_d3d(HWND hWnd) {
+bool Window::create_device_d3d(HWND hwnd) {
 	// Setup swap chain
 	DXGI_SWAP_CHAIN_DESC swap_chain_desc{};
 	swap_chain_desc.BufferCount = 2;
@@ -231,7 +249,7 @@ bool Window::create_device_d3d(HWND hWnd) {
 	swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
 	swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swap_chain_desc.OutputWindow = hWnd;
+	swap_chain_desc.OutputWindow = hwnd;
 	swap_chain_desc.SampleDesc.Count = 1;
 	swap_chain_desc.SampleDesc.Quality = 0;
 	swap_chain_desc.Windowed = TRUE;

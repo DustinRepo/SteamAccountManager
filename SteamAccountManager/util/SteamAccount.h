@@ -13,6 +13,8 @@ public:
 	std::vector<CSteamAccount> steam_accounts{};
 	void load_accounts();
 	void save_accounts();
+	void import_accounts(std::string file_name);
+	void export_accounts(std::string file_name);
 	void add_account(std::string username, std::string password);
 	void add_account(CSteamAccount c_steam_account);
 	void delete_account(std::string username);
