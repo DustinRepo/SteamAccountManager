@@ -187,9 +187,12 @@ void Window::render_main() {
 	}
 	if (current_account != -1) {
 		if (ImGui::Button("Remove Account")) {
-			c_steam_account_manager.delete_account(current_account);
-			c_steam_account_manager.save_accounts();
-			current_account = 0;
+			int result = MessageBox(hwnd, "Are you sure you want to delete this account?", "Are you sure?", MB_YESNO | MB_ICONQUESTION);
+			if (result == IDYES) {
+				c_steam_account_manager.delete_account(current_account);
+				c_steam_account_manager.save_accounts();
+				current_account = 0;
+			}
 		}
 	}
 	//Set columns back to 1 to reset then make the large login button
